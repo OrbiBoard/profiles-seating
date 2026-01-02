@@ -6,7 +6,7 @@ const store = require(path.join(app.getAppPath(), 'src', 'main', 'store.js'));
 let pluginApi = null;
 
 function fileUrl(p) { return url.pathToFileURL(p).href; }
-function emitUpdate(channel, target, value) { try { pluginApi.emit(channel, { type: 'update', target, value }); } catch {} }
+function emitUpdate(channel, target, value) { try { pluginApi.emit(channel, { type: 'update', target, value }); } catch (e) {} }
 
 const EVENT_CHANNEL = 'profiles.seating.channel';
 let state = { mode: 'position', paths: {} };
@@ -30,7 +30,7 @@ function ensureDefaults() {
     seats: {},
     backgroundStatus: '默认'
   };
-  try { store.ensureDefaults('profiles-seating', defaults); } catch {}
+  try { store.ensureDefaults('profiles-seating', defaults); } catch (e) {}
 }
 
 const functions = {

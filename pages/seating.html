@@ -246,7 +246,7 @@
             if (!aisle) {
               cell.dataset.dragDepth = '0';
               cell.addEventListener('dragenter', (e) => { e.preventDefault(); const d = parseInt(cell.dataset.dragDepth||'0'); cell.dataset.dragDepth = String((Number.isFinite(d)?d:0) + 1); cell.classList.add('drag-hover'); });
-              cell.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); try { e.dataTransfer.dropEffect = 'copy'; } catch {} });
+              cell.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); try { e.dataTransfer.dropEffect = 'copy'; } catch (e) {} });
               cell.addEventListener('dragleave', (e) => { const d = parseInt(cell.dataset.dragDepth||'0') - 1; const nd = Number.isFinite(d) ? Math.max(0, d) : 0; cell.dataset.dragDepth = String(nd); if (nd <= 0) cell.classList.remove('drag-hover'); });
               cell.addEventListener('drop', (e) => {
                 e.preventDefault();
@@ -298,7 +298,7 @@
         free.forEach(s => {
           const d = document.createElement('div'); d.className = 'item'; d.textContent = s.name || '';
           d.draggable = true;
-          d.addEventListener('dragstart', (e) => { const nm = String(s.name||''); e.dataTransfer.setData('text/student', nm); e.dataTransfer.setData('text/plain', nm); e.dataTransfer.setData('text', nm); e.dataTransfer.setData('Text', nm); try { e.dataTransfer.effectAllowed = 'copy'; } catch {} try { e.dataTransfer.setDragImage(d, 10, 10); } catch {} });
+          d.addEventListener('dragstart', (e) => { const nm = String(s.name||''); e.dataTransfer.setData('text/student', nm); e.dataTransfer.setData('text/plain', nm); e.dataTransfer.setData('text', nm); e.dataTransfer.setData('Text', nm); try { e.dataTransfer.effectAllowed = 'copy'; } catch (e) {} try { e.dataTransfer.setDragImage(d, 10, 10); } catch (e) {} });
           d.addEventListener('pointerdown', (e) => { const nm = String(s.name||''); e.preventDefault(); startLongPress(e, { type: 'free', name: nm }); });
           d.addEventListener('click', () => {
             if (selectedPersonEl && selectedPersonEl !== d) selectedPersonEl.classList.remove('selected');
@@ -467,7 +467,7 @@
 
       async function saveAll() {
         if (window.lowbarAPI?.pluginCall) {
-          try { if (window.lowbarAPI?.configSet) { await window.lowbarAPI.configSet('profiles-seating', 'rows', config.rows); await window.lowbarAPI.configSet('profiles-seating', 'cols', config.cols); await window.lowbarAPI.configSet('profiles-seating', 'seats', config.seats); } } catch {}
+          try { if (window.lowbarAPI?.configSet) { await window.lowbarAPI.configSet('profiles-seating', 'rows', config.rows); await window.lowbarAPI.configSet('profiles-seating', 'cols', config.cols); await window.lowbarAPI.configSet('profiles-seating', 'seats', config.seats); } } catch (e) {}
           await window.lowbarAPI.pluginCall?.(caller, 'saveConfig', { rows: config.rows, cols: config.cols, seats: config.seats });
           skipNextRefresh = true;
           await loadConfig();
@@ -491,7 +491,7 @@
         const wrap = document.querySelector('.grid-wrap');
         const right = document.querySelector('.right');
         const list = document.getElementById('free-list');
-        const prevent = (e) => { e.preventDefault(); e.stopPropagation(); try { e.dataTransfer.dropEffect = 'copy'; } catch {} };
+        const prevent = (e) => { e.preventDefault(); e.stopPropagation(); try { e.dataTransfer.dropEffect = 'copy'; } catch (e) {} };
         if (wrap) { wrap.addEventListener('dragover', prevent); wrap.addEventListener('dragenter', prevent); }
         if (right) { right.addEventListener('dragover', prevent); right.addEventListener('dragenter', prevent); }
         if (list) { list.addEventListener('dragover', prevent); list.addEventListener('dragenter', prevent); }
@@ -530,8 +530,8 @@
       }
 
       function beginManualDrag(e, info) {
-        try { e.preventDefault(); } catch {}
-        try { if (e.target && e.pointerId != null && e.target.setPointerCapture) e.target.setPointerCapture(e.pointerId); } catch {}
+        try { e.preventDefault(); } catch (e) {}
+        try { if (e.target && e.pointerId != null && e.target.setPointerCapture) e.target.setPointerCapture(e.pointerId); } catch (e) {}
         isManualDragging = true;
         manualDrag = { info };
         document.body.classList.add('manual-dragging');
@@ -600,7 +600,7 @@
       }
 
       (async function init() {
-        try { const u = new URL(window.location.href); channel = String(u.searchParams.get('channel')||''); caller = String(u.searchParams.get('caller')||''); } catch {}
+        try { const u = new URL(window.location.href); channel = String(u.searchParams.get('channel')||''); caller = String(u.searchParams.get('caller')||''); } catch (e) {}
         bindBottom();
         bindDragGlobals();
         bindMenus();
