@@ -115,7 +115,7 @@
       async function loadStudents() {
         let list = [];
         if (window.lowbarAPI?.pluginCall) {
-          let res = await window.lowbarAPI.pluginCall?.('profiles.students', 'getStudents');
+          let res = await window.lowbarAPI.pluginCall?.('profiles-students', 'getStudents');
           res = res?.result || res;
           list = Array.isArray(res?.students) ? res.students : [];
         } else if (window.pluginAPI?.configGet) {

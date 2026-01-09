@@ -8,7 +8,7 @@ let pluginApi = null;
 function fileUrl(p) { return url.pathToFileURL(p).href; }
 function emitUpdate(channel, target, value) { try { pluginApi.emit(channel, { type: 'update', target, value }); } catch (e) {} }
 
-const EVENT_CHANNEL = 'profiles.seating.channel';
+const EVENT_CHANNEL = 'profiles-seating-channel';
 let state = { mode: 'position', paths: {} };
 
 function ensureDefaults() {
@@ -35,12 +35,12 @@ function ensureDefaults() {
 
 const functions = {
   openSeating: async () => {
-    state.paths.seating = fileUrl(path.join(__dirname, 'pages', 'seating.html')) + `?channel=${encodeURIComponent(EVENT_CHANNEL)}&caller=${encodeURIComponent('profiles.seating')}`;
+    state.paths.seating = fileUrl(path.join(__dirname, 'pages', 'seating.html')) + `?channel=${encodeURIComponent(EVENT_CHANNEL)}&caller=${encodeURIComponent('profiles-seating')}`;
     const params = {
       title: '档案-座次表',
       eventChannel: EVENT_CHANNEL,
       subscribeTopics: [EVENT_CHANNEL],
-      callerPluginId: 'profiles.seating',
+      callerPluginId: 'profiles-seating',
       backgroundUrl: state.paths.seating,
       floatingUrl: null,
       windowMode: 'fullscreen_only',
@@ -49,7 +49,7 @@ const functions = {
         { id: 'save', text: '保存', icon: 'ri-save-3-line' }
       ]
     };
-    await pluginApi.call('ui.lowbar', 'openTemplate', [params]);
+    await pluginApi.call('ui-lowbar', 'openTemplate', [params]);
     return true;
   },
   onLowbarEvent: async (payload = {}) => {
@@ -84,7 +84,7 @@ const init = async (api) => {
 };
 
 module.exports = {
-  name: 'profiles.seating',
+  name: 'profiles-seating',
   version: '0.1.0',
   description: '档案-座次表（底栏模板，全屏）',
   init,

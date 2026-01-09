@@ -1,5 +1,5 @@
 {
-  "id": "profiles.seating",
+  "id": "profiles-seating",
   "name": "档案-座次表",
   "version": "0.1.0",
   "author": "OrbiBoard",
@@ -14,8 +14,8 @@
     }
   ],
   "dependencies": [
-    "ui.lowbar",
-    "profiles.students"
+    "ui-lowbar",
+    "profiles-students"
   ],
   "npmDependencies": {}
   ,"configSchema": {
