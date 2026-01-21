@@ -1,11 +1,18 @@
-# profiles-seating 插件
+# 档案.座次表 (profiles-seating)
 
-该仓库包含 OrbiBoard 主程序的 profiles-seating 插件源码。
+## 简介
+使用底栏模板统一样式的座次表编辑与展示插件。
 
-用法
-- 将本目录作为独立 Git 仓库管理。
-- 依赖请在 `plugin.json` 的 `npmDependencies` 或 `dependencies` 中声明，由主程序在运行时通过插件依赖管理安装。
+## 功能
+- **打开座次表**: 打开座次表界面。
 
-开发
-- 页面入口：`pages/seating.html`
-- 后端入口：`index.js`
+## 依赖
+- ui-lowbar
+- profiles-students
+
+## 配置
+插件支持以下配置：
+- **排定义**: 设置行头（含过道/普通）。
+- **列定义**: 设置列头（含过道/普通）。
+- **座位映射**: 设置具体座位的学生映射。
+- **背景状态**: 设置背景状态。

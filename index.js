@@ -1,7 +1,6 @@
 const path = require('path');
 const { app } = require('electron');
 const url = require('url');
-const store = require(path.join(app.getAppPath(), 'src', 'main', 'store.js'));
 
 let pluginApi = null;
 
@@ -12,6 +11,7 @@ const EVENT_CHANNEL = 'profiles-seating-channel';
 let state = { mode: 'position', paths: {} };
 
 function ensureDefaults() {
+  if (!pluginApi) return;
   const defaults = {
     rows: [
       { id: 'r1', label: '第1排', type: 'row' },
@@ -30,7 +30,17 @@ function ensureDefaults() {
     seats: {},
     backgroundStatus: '默认'
   };
-  try { store.ensureDefaults('profiles-seating', defaults); } catch (e) {}
+  try {
+    const current = pluginApi.store.getAll() || {};
+    let changed = false;
+    Object.keys(defaults).forEach(k => {
+      if (!(k in current)) {
+        current[k] = defaults[k];
+        changed = true;
+      }
+    });
+    if (changed) pluginApi.store.setAll(current);
+  } catch (e) {}
 }
 
 const functions = {
@@ -62,14 +72,14 @@ const functions = {
     } catch (e) { return { ok: false, error: e?.message || String(e) }; }
   },
   getConfig: async () => {
-    try { return { ok: true, config: store.getAll('profiles-seating') }; } catch (e) { return { ok: false, error: e?.message || String(e) }; }
+    try { return { ok: true, config: pluginApi.store.getAll() }; } catch (e) { return { ok: false, error: e?.message || String(e) }; }
   },
   saveConfig: async (payload = {}) => {
     try {
-      if (Array.isArray(payload.rows)) store.set('profiles-seating', 'rows', payload.rows);
-      if (Array.isArray(payload.cols)) store.set('profiles-seating', 'cols', payload.cols);
-      if (payload.seats && typeof payload.seats === 'object') store.set('profiles-seating', 'seats', payload.seats);
-      if (typeof payload.backgroundStatus === 'string') store.set('profiles-seating', 'backgroundStatus', payload.backgroundStatus);
+      if (Array.isArray(payload.rows)) pluginApi.store.set('rows', payload.rows);
+      if (Array.isArray(payload.cols)) pluginApi.store.set('cols', payload.cols);
+      if (payload.seats && typeof payload.seats === 'object') pluginApi.store.set('seats', payload.seats);
+      if (typeof payload.backgroundStatus === 'string') pluginApi.store.set('backgroundStatus', payload.backgroundStatus);
       emitUpdate(EVENT_CHANNEL, 'refresh', true);
       return { ok: true };
     } catch (e) { return { ok: false, error: e?.message || String(e) }; }
