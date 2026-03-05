@@ -1,7 +1,7 @@
 {
   "id": "profiles-seating",
   "name": "档案.座次表",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "OrbiBoard",
   "icon": "ri-layout-bottom-line",
   "description": "使用底栏模板统一样式的座次表编辑界面",
