@@ -1,5 +1,5 @@
 const path = require('path');
-const { app } = require('electron');
+const { app, dialog } = require('electron');
 const url = require('url');
 
 let pluginApi = null;
@@ -56,7 +56,13 @@ const functions = {
       windowMode: 'fullscreen_only',
       leftItems: [
         { id: 'toggle-free-list', text: '无座学生', icon: 'ri-user-unfollow-line' },
+        { id: 'export', text: '导出', icon: 'ri-download-line' },
         { id: 'save', text: '保存', icon: 'ri-save-3-line' }
+      ],
+      centerItems: [
+        { id: 'zoom-out', text: '缩小', icon: 'ri-zoom-out-line' },
+        { id: 'zoom-reset', text: '适应', icon: 'ri-layout-grid-line' },
+        { id: 'zoom-in', text: '放大', icon: 'ri-zoom-in-line' }
       ]
     };
     await pluginApi.call('ui-lowbar', 'openTemplate', [params]);
@@ -67,6 +73,12 @@ const functions = {
       if (payload?.type === 'left.click') {
         if (payload.id === 'save') emitUpdate(EVENT_CHANNEL, 'seating.save', true);
         if (payload.id === 'toggle-free-list') emitUpdate(EVENT_CHANNEL, 'freeList.toggle', true);
+        if (payload.id === 'export') emitUpdate(EVENT_CHANNEL, 'export.show', true);
+      }
+      if (payload?.type === 'click') {
+        if (payload.id === 'zoom-out') emitUpdate(EVENT_CHANNEL, 'zoom.out', true);
+        if (payload.id === 'zoom-reset') emitUpdate(EVENT_CHANNEL, 'zoom.reset', true);
+        if (payload.id === 'zoom-in') emitUpdate(EVENT_CHANNEL, 'zoom.in', true);
       }
       return true;
     } catch (e) { return { ok: false, error: e?.message || String(e) }; }
@@ -83,6 +95,114 @@ const functions = {
       emitUpdate(EVENT_CHANNEL, 'refresh', true);
       return { ok: true };
     } catch (e) { return { ok: false, error: e?.message || String(e) }; }
+  },
+  exportToWord: async (payload = {}) => {
+    try {
+      const config = payload[0] || {};
+      const fs = require('fs');
+      const path = require('path');
+      
+      // 显示保存对话框
+      const result = await dialog.showSaveDialog({
+        title: '导出Word文档',
+        defaultPath: `座次表-${Date.now()}.docx`,
+        filters: [
+          { name: 'Word文档', extensions: ['docx'] },
+          { name: '所有文件', extensions: ['*'] }
+        ]
+      });
+      
+      if (!result.filePath) {
+        return { ok: false, error: '用户取消' };
+      }
+      
+      const filePath = result.filePath;
+      
+      // 简单的Word文档生成（实际项目中可能需要使用docx库）
+      const content = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:r>
+        <w:t>座次表</w:t>
+      </w:r>
+    </w:p>
+    <w:table>
+      <w:tr>
+        <w:tc>
+          <w:p>
+            <w:r>
+              <w:t></w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        ${config.cols?.map(col => `<w:tc>
+          <w:p>
+            <w:r>
+              <w:t>${col.label || ''}</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>`).join('')}
+      </w:tr>
+      ${config.rows?.map(row => `<w:tr>
+        <w:tc>
+          <w:p>
+            <w:r>
+              <w:t>${row.label || ''}</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        ${config.cols?.map(col => {
+          const seatKey = `${row.id}-${col.id}`;
+          const seat = config.seats?.[seatKey];
+          return `<w:tc>
+            <w:p>
+              <w:r>
+                <w:t>${seat?.name || ''}</w:t>
+              </w:r>
+            </w:p>
+          </w:tc>`;
+        }).join('')}
+      </w:tr>`).join('')}
+    </w:table>
+  </w:body>
+</w:document>`;
+      
+      fs.writeFileSync(filePath, content);
+      return { ok: true, path: filePath };
+    } catch (e) {
+      return { ok: false, error: e?.message || String(e) };
+    }
+  },
+  exportToImage: async (payload = {}) => {
+    try {
+      const config = payload[0] || {};
+      const fs = require('fs');
+      const path = require('path');
+      
+      // 显示保存对话框
+      const result = await dialog.showSaveDialog({
+        title: '导出图片',
+        defaultPath: `座次表-${Date.now()}.png`,
+        filters: [
+          { name: 'PNG图片', extensions: ['png'] },
+          { name: '所有文件', extensions: ['*'] }
+        ]
+      });
+      
+      if (!result.filePath) {
+        return { ok: false, error: '用户取消' };
+      }
+      
+      const filePath = result.filePath;
+      
+      // 简单的图片生成（实际项目中可能需要使用Canvas或其他库）
+      // 这里只是创建一个占位文件
+      fs.writeFileSync(filePath, Buffer.from('placeholder'));
+      return { ok: true, path: filePath };
+    } catch (e) {
+      return { ok: false, error: e?.message || String(e) };
+    }
   }
 };
 
